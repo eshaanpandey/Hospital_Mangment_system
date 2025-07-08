@@ -15,10 +15,6 @@ app = Flask(__name__)
 mysql = MySQL(app )
 bcrypt = Bcrypt(app)
 
-print("User:", os.environ.get("Mysql_user"))
-print("Pass:", os.environ.get("Mysql_pass"))
-
-
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = os.environ.get("Mysql_user")
 app.config['MYSQL_PASSWORD'] = os.environ.get("Mysql_pass")
@@ -53,7 +49,6 @@ def patientRegister():
         password = request.form['password']
         pw_hash = bcrypt.generate_password_hash(password).decode('utf-8')
         
-
         insert(mysql, "insert into patient(email, password, name, number, age) values('{}', '{}','{}','{}','{}')".format(
             email, pw_hash, name, number, age))
 
@@ -190,9 +185,7 @@ def staffDashboard():
     if 'staff' not in session:
         flash('Not Logged in', 'bad')
         return redirect("/staffLogin")
-    # session['staff'] = 1
-    # appointments = fetchall(
-        # mysql, """select staff.sid, staff.name, desg, app_id, patient.pid, date_time, patient.name from staff inner join appointments, patient where staff.sid = appointments.sid = {} and patient.pid = appointments.pid and date_time >= '{}' order by date_time asc""".format(session['staff'],datetime.now()))
+
     appointments = fetchall(mysql, """
     SELECT s.sid, s.name, s.desg, a.app_id, p.pid, a.date_time, p.name AS patient_name
     FROM staff s
@@ -202,7 +195,7 @@ def staffDashboard():
     ORDER BY a.date_time ASC
 """, (session['staff'], datetime.now()))
 
-    print(appointments)
+    # print(appointments)
 
     personal = fetchone(mysql, "select * from staff where sid = {}".format(session['staff']))
 
